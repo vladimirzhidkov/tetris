@@ -9,4 +9,5 @@ Building Tetris is not complicated but yet encompases main features of the langu
 - modules (headers)
 - makefile
 - etc.
+
 It's a fun project to learn how to program in C
