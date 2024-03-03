@@ -1,11 +1,13 @@
-Console based game Tetris for macOS/Linux.
+# Terminal based game Tetris for macOS/Linux.
+
 It's a simple educational project aimed at learning C programming language in a fun way.
 Building Tetris is not complicated but yet encompases main features of the language:
 
-- pointers and memory
-- input/output (terminal)
 - structures
 - arrays/matrices
+- pointers and memory
+- input/output (terminal, file descriptors)
+- syscalls
 - modules (headers)
 - makefile
 - etc.
