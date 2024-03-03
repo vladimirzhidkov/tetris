@@ -2,27 +2,18 @@
 #define VIEW_H
 
 #include "main.h"
-#include "board.h"
-#include "tetromino.h"
-
-#define LEFT_SIDE_VIEW_WIDTH 20
-
-#define BOARD_BACKGROUND ". "
-#define BOTTOM_BORDER '='
-#define LEFT_BORDER "<!"
-#define RIGHT_BORDER "!>"
-
-#define TETROCELL "11"
+#include "settings.h"
 
 struct View {
 	char* frame;
+	char* tetrocell;
+	struct Game* game;
 };
 
-struct View* createView(void);
+struct View* createView(struct Game*);
 void destroyView(struct View*);
-
-void renderBoardView(struct Game*); 
-void renderLeftSideView(struct Game*);
+void renderBoardView(struct View*); 
+void renderLeftSideView(struct View*);
 void renderRightSideView(struct View*);
 
 #endif // VIEW_H

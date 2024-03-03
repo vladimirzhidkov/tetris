@@ -5,12 +5,13 @@
 #include "include/view.h"
 #include "include/terminal.h"
 
-#define BOARD_FRAME_SIZE 800
 #define FRAME_SIZE 800
 
-struct View* createView(void) {
+struct View* createView(struct Game* g) {
 	struct View* v = malloc(sizeof(struct View));
 	v->frame = malloc(sizeof(int) * FRAME_SIZE);
+	v->tetrocell = "00";
+	v->game = g;
 	return v;
 }
 
@@ -55,64 +56,62 @@ int isTetroPart(int board_x, int board_y, struct Tetromino* t) {
 	}
 }
 
-void renderBoardView(struct Game* g) {
-	char* offset = g->view->frame;
+void renderBoardView(struct View* v) {
+	char* offset = v->frame;
 	int board_y;
-	for (board_y = 0; board_y < g->board->height; board_y++) {
+	for (board_y = 0; board_y < v->game->board->height; board_y++) {
 		// left border
-		offset += moveCursor(offset, board_y + 1, LEFT_SIDE_VIEW_WIDTH);
-		strcpy(offset, LEFT_BORDER);
-		offset += strlen(LEFT_BORDER);
+		offset += moveCursor(offset, board_y + 1, VIEW_LEFTSIDE_WIDTH);
+		strcpy(offset, VIEW_BOARD_LEFTBORDER);
+		offset += VIEW_BOARD_PIXELWIDTH;
 		// board row
-		for (int board_x = 0; board_x < g->board->width; board_x++) {
-			if (readBoard(g->board, board_y, board_x) ||
-				isTetroPart(board_x, board_y, g->tetromino))
+		for (int board_x = 0; board_x < v->game->board->width; board_x++) {
+			if (readBoard(v->game->board, board_y, board_x) ||
+				isTetroPart(board_x, board_y, v->game->tetromino))
 			{
 				// TODO: change to level number
-				strcpy(offset, TETROCELL);
-				offset += strlen(TETROCELL);
+				strcpy(offset, v->tetrocell);
+				offset += strlen(v->tetrocell);
 			} else
 			{
-				strcpy(offset, BOARD_BACKGROUND);
-				offset += strlen(BOARD_BACKGROUND);
+				strcpy(offset, VIEW_BOARD_BACKGROUND);
+				offset += strlen(VIEW_BOARD_BACKGROUND);
 			}
 		}
 		// right border
-		strcpy(offset, RIGHT_BORDER);
-		offset += strlen(RIGHT_BORDER);
+		strcpy(offset, VIEW_BOARD_RIGHTBORDER);
+		offset += VIEW_BOARD_PIXELWIDTH; 
 	}
 	// bottom border
-	offset += moveCursor(offset, board_y + 1, LEFT_SIDE_VIEW_WIDTH + strlen(LEFT_BORDER));
-	int bottom_len = g->board->width * strlen(BOARD_BACKGROUND);
-	memset(offset, BOTTOM_BORDER, bottom_len);
+	offset += moveCursor(offset, board_y + 1, VIEW_LEFTSIDE_WIDTH + VIEW_BOARD_PIXELWIDTH);
+	int bottom_len = v->game->board->width * strlen(VIEW_BOARD_BACKGROUND);
+	memset(offset, VIEW_BOARD_BOTTOMBORDER, bottom_len);
 	offset += bottom_len;
 	*offset = '\0';
-	sendToTerminal(g->view->frame, strlen(g->view->frame));
+	sendToTerminal(v->frame, strlen(v->frame));
 }
 
-void renderLeftSideView(struct Game* g) {
-	char* offset = g->view->frame;
+void renderLeftSideView(struct View* v) {
+	char* offset = v->frame;
 	char line [100];
 	int row = 2;
 	int col = 2;
-	sprintf(line, "Level: %d", g->level);
+	sprintf(line, "Level: %d", v->game->level);
 	offset += renderLineAt(offset, line, row++, col);
-	sprintf(line, "Lines: %d", g->lines_cleared);
+	sprintf(line, "Lines: %d", v->game->lines_cleared);
 	offset += renderLineAt(offset, line, row++, col);
-	sprintf(line, "Score: %d", g->score);
+	sprintf(line, "Score: %d", v->game->score);
 	offset += renderLineAt(offset, line, row++, col);
 	*offset = '\0';
-	sendToTerminal(g->view->frame, strlen(g->view->frame));
+	sendToTerminal(v->frame, strlen(v->frame));
 }
 
 void renderRightSideView(struct View* v) {
 	char* offset = v->frame;
 	char line [100];	
 	int row = 2;
-	int col = LEFT_SIDE_VIEW_WIDTH + 
-		strlen(LEFT_BORDER) +
-		BOARD_WIDTH * strlen(BOARD_BACKGROUND) +
-		strlen(RIGHT_BORDER) + 2;
+	int col = VIEW_LEFTSIDE_WIDTH + VIEW_BOARD_PIXELWIDTH * 2 +
+		BOARD_WIDTH * VIEW_BOARD_PIXELWIDTH + 2;
 	sprintf(line, "%c: left", CTRL_MOVELEFT);
 	offset += renderLineAt(offset, line, row++, col);
 	sprintf(line, "%c: right", CTRL_MOVERIGHT);

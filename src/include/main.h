@@ -4,18 +4,7 @@
 #include "board.h"
 #include "tetromino.h"
 #include "view.h"
-
-#define UPDATE_RATE_MS 1000
-#define SPEED_INCREASE_MS 90
-#define BOARD_WIDTH 10
-#define BOARD_HEIGHT 20
-#define LINES_PER_LEVEL 10
-
-#define CTRL_MOVELEFT 'a'
-#define CTRL_MOVERIGHT 'd'
-#define CTRL_SPEEDUP 's'
-#define CTRL_ROTATE 'w'
-#define CTRL_QUIT 'q'
+#include "settings.h"
 
 struct Game {
 	struct Board* board;
@@ -24,7 +13,6 @@ struct Game {
 	int score;
 	int level;
 	int lines_cleared;
-	int update_rate_ms;
 };
 
 struct Game* createGame(void);

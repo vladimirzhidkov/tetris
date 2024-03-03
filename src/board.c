@@ -52,7 +52,8 @@ int clearBoardLines(struct Board* b) {
 	return count;
 }
 
-void fixTetrominoToBoard(struct Board* b, struct Tetromino* t) {
+void fixTetrominoToBoard(struct Board* b) {
+	struct Tetromino* t = b->game->tetromino;
 	for (int y = 0; y < t->size; y++) {
 		for (int x = 0; x < t->size; x++) {
 			if (readTetromino(t, y, x)) {

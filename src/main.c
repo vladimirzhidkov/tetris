@@ -9,8 +9,7 @@ struct Game* createGame(void) {
 	struct Game* g = malloc(sizeof(struct Game));
 	g->board = createBoard(BOARD_HEIGHT, BOARD_WIDTH, g);
 	g->tetromino = createTetromino();
-	g->view = createView();
-	g->update_rate_ms = UPDATE_RATE_MS;
+	g->view = createView(g);
 	g->score = 0;
 	g->level = 0;
 	return g;
@@ -56,20 +55,19 @@ void spawnTetromino(struct Game* g) {
 }
 
 void linesClearedEvent(struct Game* g, int lines_cleared) {
-	// update lines cleard
 	g->lines_cleared += lines_cleared;
-	// update level
-	g->level = g->lines_cleared / LINES_PER_LEVEL;
+	g->level = g->lines_cleared / RULES_LINES_PER_LEVEL;
+	// g->view->tetrocell =
 	// update score
-	int baseValue;
+	int base_value;
 	switch (lines_cleared) {
-		case 1: baseValue = 40; break;
-		case 2: baseValue = 100; break;
-		case 3: baseValue = 300; break;
-		case 4: baseValue = 1200; break;
-		default: baseValue = 0;
+		case 1: base_value = RULES_BASEVALUE_LEVEL1; break;
+		case 2: base_value = RULES_BASEVALUE_LEVEL2; break;
+		case 3: base_value = RULES_BASEVALUE_LEVEL3; break;
+		case 4: base_value = RULES_BASEVALUE_LEVEL4; break;
+		default: base_value = 0;
 	}
-	g->score += baseValue * (g->level + 1);
+	g->score += base_value * (g->level + 1);
 }
 
 long long current_time_ms() {
@@ -81,9 +79,8 @@ long long current_time_ms() {
 void startGameLoop(struct Game* g) {
 	while (1) {
 		long long last_updated_time_ms = current_time_ms();
-
 		// loop for a bit, constantly reading from stdin
-		int update_rate = g->update_rate_ms - g->level * SPEED_INCREASE_MS;
+		int update_rate = UPDATE_RATE_BASE_MS - UPDATE_RATE_REDUCTION_MS * g->level;
 		while (current_time_ms() - last_updated_time_ms < update_rate) {
 			unsigned char c;
 			if ((c = getChar()) == 0) {
@@ -106,8 +103,8 @@ void startGameLoop(struct Game* g) {
 				 	moveDownTetromino(g->tetromino);
 					if (checkCollision(g)) {
 						moveUpTetromino(g->tetromino);
-						fixTetrominoToBoard(g->board, g->tetromino);
-						renderLeftSideView(g);
+						fixTetrominoToBoard(g->board);
+						renderLeftSideView(g->view);
 						spawnTetromino(g);
 					}
 					break;
@@ -120,17 +117,17 @@ void startGameLoop(struct Game* g) {
 				case CTRL_QUIT:
 					exitGame(g);
 			}
-			renderBoardView(g);
+			renderBoardView(g->view);
 		}
 		// drop the tetromino by one step
 		moveDownTetromino(g->tetromino);
 		if (checkCollision(g)) {
 			moveUpTetromino(g->tetromino);
-			fixTetrominoToBoard(g->board, g->tetromino);
-			renderLeftSideView(g);
+			fixTetrominoToBoard(g->board);
+			renderLeftSideView(g->view);
 			spawnTetromino(g);
 		}
-		renderBoardView(g);
+		renderBoardView(g->view);
 	}
 }
 
@@ -138,8 +135,8 @@ int main() {
 	struct Game* g = createGame();
 	initTerminal();
 	spawnTetromino(g);
-	renderLeftSideView(g);
-	renderBoardView(g);
+	renderLeftSideView(g->view);
+	renderBoardView(g->view);
 	renderRightSideView(g->view);
 	startGameLoop(g);
 	return 0;
