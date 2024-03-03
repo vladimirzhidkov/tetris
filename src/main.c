@@ -7,10 +7,12 @@
 
 struct Game* createGame(void) {
 	struct Game* g = malloc(sizeof(struct Game));
-	g->board = createBoard(BOARD_HEIGHT, BOARD_WIDTH);
+	g->board = createBoard(BOARD_HEIGHT, BOARD_WIDTH, g);
 	g->tetromino = createTetromino();
 	g->view = createView();
 	g->update_rate_ms = UPDATE_RATE_MS;
+	g->score = 0;
+	g->level = 0;
 	return g;
 }
 
@@ -53,6 +55,23 @@ void spawnPiece(struct Game* g) {
 	}
 }
 
+void linesClearedEvent(struct Game* g, int lines_cleared) {
+	// update lines cleard
+	g->lines_cleared += lines_cleared;
+	// update level
+	g->level = g->lines_cleared / LINES_PER_LEVEL;
+	// update score
+	int baseValue;
+	switch (lines_cleared) {
+		case 1: baseValue = 40; break;
+		case 2: baseValue = 100; break;
+		case 3: baseValue = 300; break;
+		case 4: baseValue = 1200; break;
+		default: baseValue = 0;
+	}
+	g->score += baseValue * (g->level + 1);
+}
+
 long long current_time_ms() {
 	struct timeval time;
 	gettimeofday(&time, NULL);
@@ -63,11 +82,14 @@ int main() {
 	struct Game* g = createGame();
 	initTerminal();
 	spawnPiece(g);
-	renderBoardView(g->view, g->board, g->tetromino);
-	sendToTerminal(g->view->board, g->view->board_size);
+	renderLeftSideView(g);
+	renderBoardView(g);
 	while (1) {
 		long long last_updated_time_ms = current_time_ms();
-		while (current_time_ms() - last_updated_time_ms < UPDATE_RATE_MS) {
+
+		// loop for a bit, constantly reading from stdin
+		int update_rate = g->update_rate_ms - g->level * SPEED_INCREASE_MS;
+		while (current_time_ms() - last_updated_time_ms < update_rate) {
 			unsigned char c;
 			if ((c = getChar()) == 0) {
 			 	continue;
@@ -90,6 +112,7 @@ int main() {
 					if (checkCollision(g)) {
 						moveUpTetromino(g->tetromino);
 						fixTetrominoToBoard(g->board, g->tetromino);
+						renderLeftSideView(g);
 						spawnPiece(g);
 					}
 					break;
@@ -100,18 +123,17 @@ int main() {
 					}
 					break;
 			}
-
-			renderBoardView(g->view, g->board, g->tetromino);
-			sendToTerminal(g->view->board, g->view->board_size);
+			renderBoardView(g);
 		}
+		// drop the tetromino by one step
 		moveDownTetromino(g->tetromino);
 		if (checkCollision(g)) {
 			moveUpTetromino(g->tetromino);
 			fixTetrominoToBoard(g->board, g->tetromino);
+			renderLeftSideView(g);
 			spawnPiece(g);
 		}
-		renderBoardView(g->view, g->board, g->tetromino);
-		sendToTerminal(g->view->board, g->view->board_size);
+		renderBoardView(g);
 	}
 	return 0;
 }

@@ -1,0 +1,11 @@
+{
+	"editor.lineNumbers": "relative",
+	"editor.wordWrap": "on",
+	"editor.insertSpaces": false,
+	"editor.indentSize": "tabSize",
+	"editor.detectIndentation": false,
+	"editor.renderWhitespace": "boundary",
+	"editor.tabSize": 6,
+	"workbench.colorTheme": "Visual Studio Dark",
+	"editor.fontFamily": "monospace",
+}

@@ -2,10 +2,11 @@
 #include <string.h>
 #include <stdbool.h>
 #include "include/board.h"
+#include "stdio.h"
 
-
-struct Board* createBoard(int height, int width) {
+struct Board* createBoard(int height, int width, struct Game* g) {
 	struct Board* b = malloc(sizeof(struct Board));
+	b->game = g;
 	b->height = height; 
 	b->width = width;
 	int matrix_size = sizeof(int) * height * width;
@@ -27,25 +28,28 @@ int readBoard(struct Board* b, int row, int col) {
 	return *(b->matrix + row * b->width + col);
 }
 
-void clearBoardLines(struct Board* b) {
-	for (int y = 0; y < b->height; y++) {
-		bool isFullLine= true;
-		for (int x = 0; x < b->width; x++) {
-			if (readBoard(b, y, x) == 0) {
-				isFullLine = false;
+int clearBoardLines(struct Board* b) {
+	int count = 0;
+	for (int row = 0; row < b->height; row++) {
+		int isFullLine= 1;
+		// iterate over row looking for a full line
+		for (int col = 0; col < b->width; col++) {
+			if (readBoard(b, row, col) == 0) {
+				isFullLine = 0;
 				break;
 			}
 		}
 		if (isFullLine) {
-			// Shift rows up starting from y
-			int* flat_ptr = (int* )b->matrix;
-			for (int i = y * b->width - 1; i >= 0; i--) {
-				flat_ptr[i + b->width] = flat_ptr[i];
+			count++;
+			// Shift rows up starting from current row 
+			for (int i = row * b->width - 1; i >= 0; i--) {
+				b->matrix[i + b->width] = b->matrix[i];
 			}
 			// add zero line at the top
-			memset(flat_ptr, 0, sizeof(int) * b->width);
+			memset(b->matrix, 0, sizeof(int) * b->width);
 		}
 	}
+	return count;
 }
 
 void fixTetrominoToBoard(struct Board* b, struct Tetromino* t) {
@@ -56,5 +60,6 @@ void fixTetrominoToBoard(struct Board* b, struct Tetromino* t) {
 			}
 		}
 	}
-	clearBoardLines(b);
+	int line_count = clearBoardLines(b);
+	linesClearedEvent(b->game, line_count);
 }

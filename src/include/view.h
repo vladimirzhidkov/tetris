@@ -1,6 +1,7 @@
 #ifndef VIEW_H
 #define VIEW_H
 
+#include "main.h"
 #include "board.h"
 #include "tetromino.h"
 
@@ -14,13 +15,13 @@
 #define TETROCELL "11"
 
 struct View {
-	char* board;
-	int board_size;
+	char* frame;
 };
 
 struct View* createView(void);
 void destroyView(struct View*);
 
-void renderBoardView(struct View*, struct Board*, struct Tetromino*);
-void renderLeftSideView(struct View*, struct Board*);
+void renderBoardView(struct Game*); 
+void renderLeftSideView(struct Game*);
+
 #endif // VIEW_H
