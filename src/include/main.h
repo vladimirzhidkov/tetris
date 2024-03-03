@@ -11,6 +11,12 @@
 #define BOARD_HEIGHT 20
 #define LINES_PER_LEVEL 10
 
+#define CTRL_MOVELEFT 'a'
+#define CTRL_MOVERIGHT 'd'
+#define CTRL_SPEEDUP 's'
+#define CTRL_ROTATE 'w'
+#define CTRL_QUIT 'q'
+
 struct Game {
 	struct Board* board;
 	struct Tetromino* tetromino;

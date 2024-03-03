@@ -32,27 +32,19 @@ int moveCursor(char* buf, int row, int column) {
 	return strlen(cmd);
 }
 
-int renderLevel(char* buf, int level) {
-	char txt[100];
-	sprintf(txt, "Level: %d", level);
-	strcpy(buf, txt);
-	return strlen(txt);
+int renderLineAt(char* buf, char* line, int row, int col) {
+	int char_count = 0;
+	char cmd[10];
+	sprintf(cmd, "\x1b[%d;%dH", row, col);
+	strcpy(buf, cmd);
+	buf += strlen(cmd);
+	char_count += strlen(cmd);
+	strcpy(buf, line);
+	char_count += strlen(line);
+	return char_count;
 }
 
-int renderLinesCleared(char* buf, int lines_cleared) {
-	char txt[100];
-	sprintf(txt, "Lines: %d", lines_cleared);
-	strcpy(buf, txt);
-	return strlen(txt);
-}
 
-int renderScore(char* buf, int score) {
-	char txt[100];
-	sprintf(txt, "Score: %d", score);
-	strcpy(buf, txt);
-	return strlen(txt);
-}
- 
 int isTetroPart(int board_x, int board_y, struct Tetromino* t) {
 	int tetro_x = board_x - t->x;
 	int tetro_y = board_y - t->y;
@@ -95,19 +87,42 @@ void renderBoardView(struct Game* g) {
 	memset(offset, BOTTOM_BORDER, bottom_len);
 	offset += bottom_len;
 	*offset = '\0';
-	int size = strlen(g->view->frame);
-	sendToTerminal(g->view->frame, size);
+	sendToTerminal(g->view->frame, strlen(g->view->frame));
 }
 
 void renderLeftSideView(struct Game* g) {
 	char* offset = g->view->frame;
-	offset += moveCursor(offset, 2, 2);
-	offset += renderLevel(offset, g->level);
-	offset += moveCursor(offset, 3, 2);
-	offset += renderLinesCleared(offset, g->lines_cleared);
-	offset += moveCursor(offset, 4, 2);
-	offset += renderScore(offset, g->score);
+	char line [100];
+	int row = 2;
+	int col = 2;
+	sprintf(line, "Level: %d", g->level);
+	offset += renderLineAt(offset, line, row++, col);
+	sprintf(line, "Lines: %d", g->lines_cleared);
+	offset += renderLineAt(offset, line, row++, col);
+	sprintf(line, "Score: %d", g->score);
+	offset += renderLineAt(offset, line, row++, col);
 	*offset = '\0';
-	int frame_size = strlen(g->view->frame);
-	sendToTerminal(g->view->frame, frame_size);
+	sendToTerminal(g->view->frame, strlen(g->view->frame));
+}
+
+void renderRightSideView(struct View* v) {
+	char* offset = v->frame;
+	char line [100];	
+	int row = 2;
+	int col = LEFT_SIDE_VIEW_WIDTH + 
+		strlen(LEFT_BORDER) +
+		BOARD_WIDTH * strlen(BOARD_BACKGROUND) +
+		strlen(RIGHT_BORDER) + 2;
+	sprintf(line, "%c: left", CTRL_MOVELEFT);
+	offset += renderLineAt(offset, line, row++, col);
+	sprintf(line, "%c: right", CTRL_MOVERIGHT);
+	offset += renderLineAt(offset, line, row++, col);
+	sprintf(line, "%c: rotate", CTRL_ROTATE);
+	offset += renderLineAt(offset, line, row++, col);
+	sprintf(line, "%c: speed up", CTRL_SPEEDUP);
+	offset += renderLineAt(offset, line, row++, col);
+	sprintf(line, "%c: quit", CTRL_QUIT);
+	offset += renderLineAt(offset, line, row++, col);
+	*offset = '\0';
+	sendToTerminal(v->frame, strlen(v->frame));
 }

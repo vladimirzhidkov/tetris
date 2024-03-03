@@ -46,7 +46,7 @@ int checkCollision(struct Game* g) {
 	return 0;
 }
 
-void spawnPiece(struct Game* g) {
+void spawnTetromino(struct Game* g) {
 	randomizeTetromino(g->tetromino);
 	g->tetromino->x = (g->board->width - g->tetromino->size) / 2;
 	g->tetromino->y = 0;
@@ -78,12 +78,7 @@ long long current_time_ms() {
 	return (long long)time.tv_sec * 1000 + time.tv_usec / 1000;
 }
 
-int main() {
-	struct Game* g = createGame();
-	initTerminal();
-	spawnPiece(g);
-	renderLeftSideView(g);
-	renderBoardView(g);
+void startGameLoop(struct Game* g) {
 	while (1) {
 		long long last_updated_time_ms = current_time_ms();
 
@@ -95,33 +90,35 @@ int main() {
 			 	continue;
 			 }
 			switch (c) {
-				case 'a':
+				case CTRL_MOVELEFT:
 				 	moveLeftTetromino(g->tetromino);
 					if (checkCollision(g)) {
 						moveRightTetromino(g->tetromino);
 					}
 					break;
-				case 'd':
+				case CTRL_MOVERIGHT:
 				 	moveRightTetromino(g->tetromino);
 					if (checkCollision(g)) {
 						moveLeftTetromino(g->tetromino);
 					}
 					break;
-				case 's':
+				case CTRL_SPEEDUP:
 				 	moveDownTetromino(g->tetromino);
 					if (checkCollision(g)) {
 						moveUpTetromino(g->tetromino);
 						fixTetrominoToBoard(g->board, g->tetromino);
 						renderLeftSideView(g);
-						spawnPiece(g);
+						spawnTetromino(g);
 					}
 					break;
-				case 'w':
+				case CTRL_ROTATE:
 					rotateClockwiseTetromino(g->tetromino);
 					if (checkCollision(g)) {
 						rotateCounterClockwiseTetromino(g->tetromino);
 					}
 					break;
+				case CTRL_QUIT:
+					exitGame(g);
 			}
 			renderBoardView(g);
 		}
@@ -131,9 +128,19 @@ int main() {
 			moveUpTetromino(g->tetromino);
 			fixTetrominoToBoard(g->board, g->tetromino);
 			renderLeftSideView(g);
-			spawnPiece(g);
+			spawnTetromino(g);
 		}
 		renderBoardView(g);
 	}
+}
+
+int main() {
+	struct Game* g = createGame();
+	initTerminal();
+	spawnTetromino(g);
+	renderLeftSideView(g);
+	renderBoardView(g);
+	renderRightSideView(g->view);
+	startGameLoop(g);
 	return 0;
 }
