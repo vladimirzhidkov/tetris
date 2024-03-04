@@ -35,7 +35,7 @@ int checkCollision(struct Game* g) {
 				int x = g->tetromino->x + cellX;
 				int y = g->tetromino->y + cellY;
 				if (x < 0 || x >= g->board->width ||
-					y >= g->board->height || readBoard(g->board, y, x))
+					y >= g->board->height || readBoard(g->board, x, y))
 				{
 					return 1;
 				}
@@ -57,7 +57,7 @@ void spawnTetromino(struct Game* g) {
 void linesClearedEvent(struct Game* g, int lines_cleared) {
 	g->lines_cleared += lines_cleared;
 	g->level = g->lines_cleared / RULES_LINES_PER_LEVEL;
-	// g->view->tetrocell =
+	g->view->tetromino_stroke = g->level + 48; // convert level number to char
 	// update score
 	int base_value;
 	switch (lines_cleared) {
@@ -134,10 +134,12 @@ void startGameLoop(struct Game* g) {
 int main() {
 	struct Game* g = createGame();
 	initTerminal();
-	spawnTetromino(g);
 	renderLeftSideView(g->view);
-	renderBoardView(g->view);
+	renderBoardBorders(g->view);
 	renderRightSideView(g->view);
+	renderBoardView(g->view);
+
+	spawnTetromino(g);
 	startGameLoop(g);
 	return 0;
 }

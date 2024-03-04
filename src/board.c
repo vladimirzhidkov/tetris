@@ -20,21 +20,21 @@ void destroyBoard(struct Board* b) {
 	free(b);
 }
 
-void writeBoard(struct Board* b, int row, int col, int value) {
-	*(b->matrix + row * b->width + col) = value; 
+void writeBoard(struct Board* b, int x, int y, int value) {
+	*(b->matrix + y * b->width + x) = value; 
 }
 
-int readBoard(struct Board* b, int row, int col) {
-	return *(b->matrix + row * b->width + col);
+int readBoard(struct Board* b, int x, int y) {
+	return *(b->matrix + y * b->width + x);
 }
 
 int clearBoardLines(struct Board* b) {
 	int count = 0;
-	for (int row = 0; row < b->height; row++) {
+	for (int y = 0; y < b->height; y++) {
 		int isFullLine= 1;
 		// iterate over row looking for a full line
-		for (int col = 0; col < b->width; col++) {
-			if (readBoard(b, row, col) == 0) {
+		for (int x = 0; x < b->width; x++) {
+			if (readBoard(b, x, y) == 0) {
 				isFullLine = 0;
 				break;
 			}
@@ -42,7 +42,7 @@ int clearBoardLines(struct Board* b) {
 		if (isFullLine) {
 			count++;
 			// Shift rows up starting from current row 
-			for (int i = row * b->width - 1; i >= 0; i--) {
+			for (int i = y * b->width - 1; i >= 0; i--) {
 				b->matrix[i + b->width] = b->matrix[i];
 			}
 			// add zero line at the top
@@ -57,7 +57,7 @@ void fixTetrominoToBoard(struct Board* b) {
 	for (int y = 0; y < t->size; y++) {
 		for (int x = 0; x < t->size; x++) {
 			if (readTetromino(t, y, x)) {
-				writeBoard(b, t->y + y, t->x + x, 1);
+				writeBoard(b, t->x + x, t->y + y, 1);
 			}
 		}
 	}

@@ -15,7 +15,7 @@ struct Board* createBoard(int height, int width, struct Game*);
 void destroyBoard(struct Board*);
 int clearBoardLines(struct Board*);
 void fixTetrominoToBoard(struct Board*);
-void writeBoard(struct Board*, int row, int col, int value);
-int readBoard(struct Board*, int row, int col);
+void writeBoard(struct Board*, int x, int y, int value);
+int readBoard(struct Board*, int x, int y);
 
 #endif // BOARD_H
