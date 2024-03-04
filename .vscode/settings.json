@@ -10,6 +10,7 @@
 	"editor.fontFamily": "monospace",
 	"files.associations": {
 		"settings.h": "c",
-		"view.h": "c"
+		"view.h": "c",
+		"terminal.h": "c"
 	},
 }

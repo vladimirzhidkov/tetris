@@ -57,7 +57,7 @@ void spawnTetromino(struct Game* g) {
 void linesClearedEvent(struct Game* g, int lines_cleared) {
 	g->lines_cleared += lines_cleared;
 	g->level = g->lines_cleared / RULES_LINES_PER_LEVEL;
-	g->view->tetromino_stroke = g->level + 48; // convert level number to char
+	// g->view->tetromino_stroke = g->level + 48; // convert level number to char
 	// update score
 	int base_value;
 	switch (lines_cleared) {
@@ -132,14 +132,14 @@ void startGameLoop(struct Game* g) {
 }
 
 int main() {
-	struct Game* g = createGame();
 	initTerminal();
+	struct Game* g = createGame();
+	spawnTetromino(g);
 	renderLeftSideView(g->view);
 	renderBoardBorders(g->view);
 	renderRightSideView(g->view);
 	renderBoardView(g->view);
 
-	spawnTetromino(g);
 	startGameLoop(g);
 	return 0;
 }

@@ -5,19 +5,19 @@
 #include "include/view.h"
 #include "include/terminal.h"
 
-#define FRAME_SIZE 800
+#define FRAME_SIZE 2000
 
 struct View* createView(struct Game* g) {
 	struct View* v = malloc(sizeof(struct View));
-	v->frame = malloc(sizeof(int) * FRAME_SIZE);
+	v->frame = malloc(sizeof(char) * FRAME_SIZE);
 	v->game = g;
-	v->leftside_width = 20;
-	v->board_pixel_width = 2;
-	v->board_pixel_height = 1;
-	v->board_border_thickness = 2;
-	v->board_border_stroke = '*';
-	v->tetromino_stroke = '0';
-	v->board_background_stroke = ' ';
+	v->leftside_width = VIEW_LEFTSIDE_PANE_WIDTH;
+	v->board_pixel_width = VIEW_BOARD_PIXEL_WIDTH;
+	v->board_pixel_height = VIEW_BOARD_PIXEL_HEIGH;
+	v->board_border_thickness = VIEW_BOARD_BORDER_THICKNESS;
+	v->board_border_stroke = VIEW_BOARD_BORDER_STROKE;
+	v->tetromino_stroke = VIEW_TETROMINO_STROKE;
+	v->board_background_stroke = VIEW_BOARD_BACKGROUND_STROKE;
 	return v;
 }
 
@@ -65,14 +65,14 @@ int renderSideBorders(struct View* v, char* frame) {
 	char* start = frame;
 	struct Board* b = v->game->board;
 	int col = v->leftside_width;
-	for (int row = 1; row <= b->height; ++row) {
+	for (int row = 1; row <= b->height * v->board_pixel_height; ++row) {
 		frame += moveCursor(frame, row, col);
 		memset(frame, v->board_border_stroke, v->board_border_thickness);
 		frame += v->board_border_thickness;
 		memset(frame, ' ', b->width * v->board_pixel_width);
 		frame += b->width * v->board_pixel_width;
 		memset(frame, v->board_border_stroke, v->board_border_thickness);
-		frame += v->board_border_thickness;	
+		frame += v->board_border_thickness;
 	}
 	return frame - start;
 }
@@ -94,19 +94,20 @@ void renderBoardView(struct View* v) {
 	struct Board* b = v->game->board;
 	struct Tetromino* t = v->game->tetromino;
 	char* frame = v->frame;
-	for (int y = 0; y < b->height; y++) {
-		int row = y + 1;
+	for (int y = 0, row = 1; y < b->height; y++, row += v->board_pixel_height) {
 		int col = v->leftside_width + v->board_border_thickness;
-		frame += moveCursor(frame, row, col);
-		for (int x = 0; x < b->width; x++) {
-			char stroke;
-			if (readBoard(b, x, y) || isTetroPart(x, y, t)) {
-				stroke = v->tetromino_stroke;
-			} else {
-				stroke = v->board_background_stroke;
+		for (int i = 0; i < v->board_pixel_height; ++i) {
+			frame += moveCursor(frame, row + i, col);
+			for (int x = 0; x < b->width; x++) {
+				char stroke;
+				if (readBoard(b, x, y) || isTetroPart(x, y, t)) {
+					stroke = v->tetromino_stroke;
+				} else {
+					stroke = v->board_background_stroke;
+				}
+				memset(frame, stroke, v->board_pixel_width);
+				frame += v->board_pixel_width;
 			}
-			memset(frame, stroke, v->board_pixel_width);
-			frame += v->board_pixel_width;
 		}
 	}
 	*frame = '\0';
@@ -140,9 +141,8 @@ void renderRightSideView(struct View* v) {
 	char* offset = v->frame;
 	char line [100];	
 	int row = 2;
-	int col = VIEW_LEFTSIDE_WIDTH +
-		strlen(VIEW_BOARD_LEFTBORDER) + strlen(VIEW_BOARD_RIGHTBORDER) +
-		BOARD_WIDTH * VIEW_BOARD_PIXELWIDTH + 2;
+	int col = v->leftside_width + v->board_border_thickness * 2 +
+		v->game->board->width * v->board_pixel_width + 2;
 	sprintf(line, "%c: left", CTRL_MOVELEFT);
 	offset += renderLineAt(offset, line, row++, col);
 	sprintf(line, "%c: right", CTRL_MOVERIGHT);
