@@ -55,7 +55,7 @@ int isTetroPart(int board_x, int board_y, struct Tetromino* t) {
 	int tetro_x = board_x - t->x;
 	int tetro_y = board_y - t->y;
 	if (tetro_x >= 0 && tetro_x < t->size && tetro_y >=0 && tetro_y < t->size) {
-		return readTetromino(t, tetro_y, tetro_x);
+		return readTetromino(t, tetro_x, tetro_y);
 	} else {
 		return 0;
 	}

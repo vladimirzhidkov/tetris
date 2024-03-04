@@ -12,8 +12,8 @@ struct Tetromino {
 struct Tetromino* createTetromino(void);
 void destroyTetromino(struct Tetromino*);
 void randomizeTetromino(struct Tetromino*);
-int readTetromino(struct Tetromino*, int row, int col);
-void writeTetromino(struct Tetromino*, int row, int col, int value);
+int readTetromino(struct Tetromino*, int x, int y);
+void writeTetromino(struct Tetromino*, int x, int y, int value);
 void moveRightTetromino(struct Tetromino*);
 void moveLeftTetromino(struct Tetromino*);
 void moveDownTetromino(struct Tetromino*);

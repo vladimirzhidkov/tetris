@@ -12,6 +12,8 @@ struct Game* createGame(void) {
 	g->view = createView(g);
 	g->score = 0;
 	g->level = 0;
+	g->update_rate_base = UPDATE_RATE_BASE_MS;
+	g->update_rate_reduction = UPDATE_RATE_REDUCTION_MS;
 	return g;
 }
 
@@ -31,7 +33,7 @@ void exitGame(struct Game* g) {
 int checkCollision(struct Game* g) {
 	for (int cellY = 0; cellY < g->tetromino->size; cellY++) {
 		for (int cellX = 0; cellX < g->tetromino->size; cellX++) {
-			if (readTetromino(g->tetromino, cellY, cellX)) {
+			if (readTetromino(g->tetromino, cellX, cellY)) {
 				int x = g->tetromino->x + cellX;
 				int y = g->tetromino->y + cellY;
 				if (x < 0 || x >= g->board->width ||

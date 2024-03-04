@@ -60,20 +60,20 @@ const int tetroPool[][TETROMINO_SIZE][TETROMINO_SIZE] = {
 	}
 };
 
-int readTetromino(struct Tetromino* t, int row, int col) {
-	return *(t->matrix + row * t->size + col);
+int readTetromino(struct Tetromino* t, int x, int y) {
+	return *(t->matrix + y * t->size + x);
 }
 
-void writeTetromino(struct Tetromino* t, int row, int col, int value) {
-	*(t->matrix + row * t->size + col) = value;
+void writeTetromino(struct Tetromino* t, int x, int y, int value) {
+	*(t->matrix + y * t->size + x) = value;
 }
 
 void transpose(struct Tetromino* t) {
 	for (int i = 0; i < t->size; i++) {
 		for (int j = i + 1; j < t->size; j++) {
-			int temp = readTetromino(t, i, j);
-			writeTetromino(t, i, j, readTetromino(t, j, i));
-			writeTetromino(t, j, i, temp);
+			int temp = readTetromino(t, j, i);
+			writeTetromino(t, j, i, readTetromino(t, i, j));
+			writeTetromino(t, i, j, temp);
 		}
 	}
 }
@@ -81,9 +81,9 @@ void transpose(struct Tetromino* t) {
 void reverseRows(struct Tetromino* t) {
 	for (int i = 0; i < t->size; i++) {
 		for (int j = 0, k = t->size - 1; j < k; j++, k--) {
-			int temp = readTetromino(t, i, j);
-			writeTetromino(t, i, j, readTetromino(t, i, k));
-			writeTetromino(t, i, k, temp);
+			int temp = readTetromino(t, j, i);
+			writeTetromino(t, j, i, readTetromino(t, k, i));
+			writeTetromino(t, k, i, temp);
 		}
 	}
 }
@@ -91,9 +91,9 @@ void reverseRows(struct Tetromino* t) {
 void reverseColumns(struct Tetromino* t) {
 	for (int i = 0; i < t->size; i++) {
 		for (int j = 0, k = t->size - 1; j < k; j++, k--) {
-			int temp = readTetromino(t, j, i);
-			writeTetromino(t, j, i, readTetromino(t, k, i));
-			writeTetromino(t, k, i, temp);
+			int temp = readTetromino(t, i, j);
+			writeTetromino(t, i, j, readTetromino(t, i, k));
+			writeTetromino(t, i, k, temp);
 		}
 	}
 }

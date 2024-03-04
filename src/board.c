@@ -56,7 +56,7 @@ void fixTetrominoToBoard(struct Board* b) {
 	struct Tetromino* t = b->game->tetromino;
 	for (int y = 0; y < t->size; y++) {
 		for (int x = 0; x < t->size; x++) {
-			if (readTetromino(t, y, x)) {
+			if (readTetromino(t, x, y)) {
 				writeBoard(b, t->x + x, t->y + y, 1);
 			}
 		}

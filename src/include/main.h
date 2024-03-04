@@ -13,6 +13,8 @@ struct Game {
 	int score;
 	int level;
 	int lines_cleared;
+	int update_rate_base;
+	int update_rate_reduction;
 };
 
 struct Game* createGame(void);
