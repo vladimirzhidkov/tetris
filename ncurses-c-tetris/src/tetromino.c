@@ -5,65 +5,57 @@
 #define TETROPOOL_SIZE 7
 #define TETROMINO_SIZE 4
 
-/*
-Tetromino Shapes:
--	straight line
-O	square
-T	T shape.
-S	zigzag oriented horizontally
-Z	mirrored S shape
-J	J shape
-L	mirrored J shape
-*/
-const int tetroPool[][TETROMINO_SIZE][TETROMINO_SIZE] = {
-	{
-		{0, 0, 0, 0},
-		{1, 1, 1, 1},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0}
+int tetroPool[TETROPOOL_SIZE][TETROMINO_SIZE * TETROMINO_SIZE] = {
+	{ // line-shape
+		0, 0, 0, 0,
+		1, 1, 1, 1,
+		0, 0, 0, 0,
+		0, 0, 0, 0
 	},
-	{
-		{0, 0, 0, 0},
-		{0, 1, 1, 0},
-		{0, 1, 1, 0},
-		{0, 0, 0, 0}
+	{ // O-shape
+		0, 0, 0, 0,
+		0, 1, 1, 0,
+		0, 1, 1, 0,
+		0, 0, 0, 0
 	},
-	{
-		{0, 0, 0, 0},
-		{1, 1, 1, 0},
-		{0, 1, 0, 0},
-		{0, 0, 0, 0}
+	{ // T-shape
+		0, 0, 0, 0,
+		1, 1, 1, 0,
+		0, 1, 0, 0,
+		0, 0, 0, 0
 	},
-	{
-		{0, 0, 0, 0},
-		{0, 1, 1, 0},
-		{1, 1, 0, 0},
-		{0, 0, 0, 0}
+	{ // S-shape
+		0, 0, 0, 0,
+		0, 1, 1, 0,
+		1, 1, 0, 0,
+		0, 0, 0, 0
 	},
-	{
-		{0, 0, 0, 0},
-		{0, 1, 1, 0},
-		{0, 0, 1, 1},
-		{0, 0, 0, 0}
+	{ // Z-shape
+		0, 0, 0, 0,
+		0, 1, 1, 0,
+		0, 0, 1, 1,
+		0, 0, 0, 0
 	},
-	{
-		{0, 0, 1, 0},
-		{0, 0, 1, 0},
-		{0, 1, 1, 0},
-		{0, 0, 0, 0}
+	{ // J-shape
+		0, 0, 1, 0,
+		0, 0, 1, 0,
+		0, 1, 1, 0,
+		0, 0, 0, 0
 	},
-	{
-		{0, 1, 0, 0},
-		{0, 1, 0, 0},
-		{0, 1, 1, 0},
-		{0, 0, 0, 0}
+	{ // L-shape
+		0, 1, 0, 0,
+		0, 1, 0, 0,
+		0, 1, 1, 0,
+		0, 0, 0, 0
 	}
 };
 
 int readTetromino(struct Tetromino* t, int x, int y) {
 	return *(t->matrix + y * t->size + x);
 }
-
+int readNextTetromino(struct Tetromino* t, int x, int y) {
+	return *(t->next + y * t->size + x);
+}
 void writeTetromino(struct Tetromino* t, int x, int y, int value) {
 	*(t->matrix + y * t->size + x) = value;
 }
@@ -103,18 +95,18 @@ struct Tetromino* createTetromino() {
 	t->x = 0;
 	t->y = 0;
 	t->size = TETROMINO_SIZE;
-	t->matrix = malloc(sizeof(int) * t->size * t->size);
+	randomizeTetromino(t);
 	return t;
 }
 
 void destroyTetromino(struct Tetromino* t) {
-	free(t->matrix);
 	free(t);
 }
 
 void randomizeTetromino(struct Tetromino* t) {
 	int i = rand() % TETROPOOL_SIZE;
-	memcpy(t->matrix, &tetroPool[i], sizeof(int) * t->size * t->size);
+	t->matrix = t->next;
+	t->next = tetroPool[i];
 }
 
 void rotateClockwiseTetromino(struct Tetromino* t) {

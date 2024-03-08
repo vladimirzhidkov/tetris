@@ -23,9 +23,12 @@ struct View* createView(struct Game* g) {
 	// create windows
 	int gameboard_width = g->board->width * v->board_pixel_width + 2;
 	int gameboard_height = g->board->height * v->board_pixel_height + 2;
-	v->winstructions = newwin(gameboard_height, v->leftside_width, 1, 1);
 	v->wboard = newwin(gameboard_height, gameboard_width, 0, v->leftside_width);
 	v->wscore = newwin(gameboard_height, 20, 1, v->leftside_width + gameboard_width + 1);
+	int wnext_height = g->tetromino->size * v->board_pixel_height + 2;
+	int wnext_width = g->tetromino->size * v->board_pixel_width;
+	v->wnext = newwin(wnext_height, wnext_width, 1, 1);
+	v->winstructions = newwin(gameboard_height - wnext_height, v->leftside_width, wnext_height, 1);
 	return v;
 }
 
@@ -33,9 +36,8 @@ void destroyView(struct View* v) {
 	delwin(v->winstructions);
 	delwin(v->wboard);
 	delwin(v->wscore);
+	delwin(v->wnext);
 	endwin();
-	free(v->tetrocell);
-	free(v->boardcell);
 	free(v);
 }
 
@@ -69,7 +71,6 @@ void viewRenderGameBoard(struct View* v) {
 			wmove(v->wboard, row + i, 1);
 			for (int x = 0; x < b->width; x++) {
 				if (readBoard(b, x, y) || isTetroPart(x, y, t)) {
-					
 					wattron(v->wboard, COLOR_PAIR(1));
 					wprintw(v->wboard, tetrocell);
 					wattroff(v->wboard, COLOR_PAIR(1));
@@ -83,6 +84,8 @@ void viewRenderGameBoard(struct View* v) {
 	}
 	box(v->wboard, 0, 0);
 	wrefresh(v->wboard);
+	free(tetrocell);
+	free(boardcell);
 }
 
 void viewRenderInstructions(struct View* v) {
@@ -106,4 +109,25 @@ void viewRenderScoreBoard(struct View* v) {
 	wprintw(v->wscore, "Lines: %d\n", v->game->lines_cleared);
 	wprintw(v->wscore, "Score: %d\n", v->game->score);
 	wrefresh(v->wscore);
+}
+
+void viewRenderNextShape(struct View* v) {
+	struct Tetromino* t = v->game->tetromino;
+	WINDOW* wnext = v->wnext;
+	char* cell = str_repeat_char(' ', v->board_pixel_width);
+	wclear(wnext);
+	wprintw(wnext, "Next:");
+	for (int y = 0, row = 1; y < t->size; y++, row += v->board_pixel_height) {
+		for (int i = 0; i < v->board_pixel_height; ++i) {
+			wmove(wnext, row + i, 0);
+			for (int x = 0; x < t->size; x++) {
+				int c = readNextTetromino(t, x, y);
+				wattron(wnext, COLOR_PAIR(c));
+				wprintw(wnext, cell);
+				wattroff(wnext, COLOR_PAIR(c));
+			}
+		}
+	}
+	free(cell);
+	wrefresh(v->wnext);
 }

@@ -9,6 +9,7 @@ struct View {
 	struct Game* game;
 	int leftside_width;
 	WINDOW * wscore;
+	WINDOW * wnext;
 	WINDOW * wboard;
 	WINDOW * winstructions;
 	int board_pixel_width;
@@ -20,5 +21,5 @@ void destroyView(struct View*);
 void viewRenderGameBoard(struct View*); 
 void viewRenderInstructions(struct View*);
 void viewRenderScoreBoard(struct View*);
-
+void viewRenderNextShape(struct View*);
 #endif // VIEW_H

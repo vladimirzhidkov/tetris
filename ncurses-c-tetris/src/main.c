@@ -62,6 +62,7 @@ void spawnTetromino(struct Game* g) {
 	if (checkCollision(g)) {
 		exitGame(g);
 	}
+	viewRenderNextShape(g->view);
 }
 
 void linesClearedEvent(struct Game* g, int lines_cleared) {
@@ -118,6 +119,7 @@ void startGameLoop(struct Game* g) {
 				}
 				break;
 			case KEY_DOWN:
+			case ' ':
 				moveDownTetromino(g->tetromino);
 				if (checkCollision(g)) {
 					moveUpTetromino(g->tetromino);

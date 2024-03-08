@@ -3,7 +3,7 @@ PROJECT = tetris.out
 SRC_DIR = src
 BUILD_DIR = bin
 INCLUDE_DIR = $(SRC_DIR)/include
-CFILES = $(patsubst %,$(SRC_DIR)/%, main.c tetromino.c board.c view.c terminal.c)
+CFILES = $(patsubst %,$(SRC_DIR)/%, main.c tetromino.c board.c view.c)
 AFILES = $(patsubst %,$(SRC_DIR)/%,)
 LIBS = -lncurses
 
