@@ -16,8 +16,8 @@ struct View {
 	int board_pixel_height;
 };
 
-struct View* createView(struct Game*);
-void destroyView(struct View*);
+struct View* viewCreate(struct Game*);
+void viewDestroy(struct View*);
 void viewRenderGameBoard(struct View*); 
 void viewRenderInstructions(struct View*);
 void viewRenderScoreBoard(struct View*);

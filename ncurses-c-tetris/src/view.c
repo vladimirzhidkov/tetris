@@ -4,11 +4,10 @@
 #include <ncurses.h>
 
 #include "include/view.h"
-#include "include/terminal.h"
 
 char * str_repeat_char(char c, int n);
 
-struct View* createView(struct Game* g) {
+struct View* viewCreate(struct Game* g) {
 	struct View* v = malloc(sizeof(struct View));
 	v->game = g;
 	v->leftside_width = VIEW_LEFTSIDE_PANE_WIDTH;
@@ -32,7 +31,7 @@ struct View* createView(struct Game* g) {
 	return v;
 }
 
-void destroyView(struct View* v) {
+void viewDestroy(struct View* v) {
 	delwin(v->winstructions);
 	delwin(v->wboard);
 	delwin(v->wscore);
@@ -54,7 +53,7 @@ int isTetroPart(int board_x, int board_y, struct Tetromino* t) {
 	int tetro_x = board_x - t->x;
 	int tetro_y = board_y - t->y;
 	if (tetro_x >= 0 && tetro_x < t->size && tetro_y >=0 && tetro_y < t->size) {
-		return readTetromino(t, tetro_x, tetro_y);
+		return tetroRead(t, tetro_x, tetro_y);
 	} else {
 		return 0;
 	}
@@ -70,7 +69,7 @@ void viewRenderGameBoard(struct View* v) {
 		for (int i = 0; i < v->board_pixel_height; ++i) {
 			wmove(v->wboard, row + i, 1);
 			for (int x = 0; x < b->width; x++) {
-				if (readBoard(b, x, y) || isTetroPart(x, y, t)) {
+				if (boardRead(b, x, y) || isTetroPart(x, y, t)) {
 					wattron(v->wboard, COLOR_PAIR(1));
 					wprintw(v->wboard, tetrocell);
 					wattroff(v->wboard, COLOR_PAIR(1));
@@ -121,10 +120,10 @@ void viewRenderNextShape(struct View* v) {
 		for (int i = 0; i < v->board_pixel_height; ++i) {
 			wmove(wnext, row + i, 0);
 			for (int x = 0; x < t->size; x++) {
-				int c = readNextTetromino(t, x, y);
-				wattron(wnext, COLOR_PAIR(c));
+				int value = tetroReadNext(t, x, y);
+				wattron(wnext, COLOR_PAIR(value));
 				wprintw(wnext, cell);
-				wattroff(wnext, COLOR_PAIR(c));
+				wattroff(wnext, COLOR_PAIR(value));
 			}
 		}
 	}

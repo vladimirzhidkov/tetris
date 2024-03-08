@@ -16,11 +16,10 @@ struct Game {
 	int update_rate;
 };
 
-struct Game* createGame(void);
-void destroyGame(struct Game*);
-void exitGame(struct Game*); 
-void spawnPiece(struct Game*);
-int checkCollision(struct Game* g);
-void linesClearedEvent(struct Game*, int lines_cleared);
+struct Game* gameCreate(void);
+void gameDestroy(struct Game*);
+void gameExit(struct Game*); 
+void gameLinesClearedEvent(struct Game*, int lines_cleared);
+
 
 #endif // MAIN_H
