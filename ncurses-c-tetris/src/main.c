@@ -25,7 +25,7 @@ struct Game* gameCreate(void) {
 	g->view = viewCreate(g);
 	g->score = 0;
 	g->level = 0;
-	g->update_rate = UPDATE_RATE_BASE_MS - UPDATE_RATE_REDUCTION_MS * g->level;
+	g->update_rate = GAME_UPDATE_RATE_BASE_MS - GAME_UPDATE_RATE_REDUCTION_MS * g->level;
 	return g;
 }
 
@@ -69,20 +69,29 @@ void spawnTetromino(struct Game* g) {
 	viewRenderNextShape(g->view);
 }
 
-void gameLinesClearedEvent(struct Game* g, int lines_cleared) {
-	g->lines_cleared += lines_cleared;
-	g->level = g->lines_cleared / RULES_LINES_PER_LEVEL;
-	g->update_rate = UPDATE_RATE_BASE_MS - UPDATE_RATE_REDUCTION_MS * g->level;
-	// update score
+int calcScore(int lines_cleared, int level) {
 	int base_value;
 	switch (lines_cleared) {
-		case 1: base_value = RULES_BASEVALUE_LEVEL1; break;
-		case 2: base_value = RULES_BASEVALUE_LEVEL2; break;
-		case 3: base_value = RULES_BASEVALUE_LEVEL3; break;
-		case 4: base_value = RULES_BASEVALUE_LEVEL4; break;
+		case 1: base_value = GAME_RULES_BASEVALUE_LEVEL1; break;
+		case 2: base_value = GAME_RULES_BASEVALUE_LEVEL2; break;
+		case 3: base_value = GAME_RULES_BASEVALUE_LEVEL3; break;
+		case 4: base_value = GAME_RULES_BASEVALUE_LEVEL4; break;
 		default: base_value = 0;
 	}
-	g->score += base_value * (g->level + 1);
+	return base_value * (level + 1);
+}
+
+// gets called if lines_cleard > 0
+void gameEventLinesCleared(struct Game* g, int lines_cleared) {
+	g->lines_cleared += lines_cleared;
+	g->level = g->lines_cleared / GAME_RULES_LINES_PER_LEVEL;
+	g->update_rate = GAME_UPDATE_RATE_BASE_MS - GAME_UPDATE_RATE_REDUCTION_MS * g->level;
+	g->score += calcScore(lines_cleared, g->level);
+}
+
+void gameEventTetroFixedToBoard(struct Game* g) {
+	viewRenderScoreBoard(g->view);
+	spawnTetromino(g);
 }
 
 long long current_time_ms() {
@@ -99,8 +108,6 @@ void startGameLoop(struct Game* g) {
 			if (checkCollision(g)) {
 				tetroMoveUp(g->tetromino);
 				boardFixTetroToBoard(g->board);
-				viewRenderScoreBoard(g->view);
-				spawnTetromino(g);
 			}
 			viewRenderGameBoard(g->view);
 			last_updated_time_ms = current_time_ms();
@@ -128,8 +135,6 @@ void startGameLoop(struct Game* g) {
 				if (checkCollision(g)) {
 					tetroMoveUp(g->tetromino);
 					boardFixTetroToBoard(g->board);
-					viewRenderScoreBoard(g->view);
-					spawnTetromino(g);
 				}
 				break;
 			case KEY_UP:
@@ -148,7 +153,6 @@ void startGameLoop(struct Game* g) {
 int main() {
 	struct Game* g = gameCreate();
 	spawnTetromino(g);
-	viewRenderInstructions(g->view);
 	viewRenderGameBoard(g->view);
 	viewRenderScoreBoard(g->view);
 	startGameLoop(g);

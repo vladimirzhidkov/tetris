@@ -19,7 +19,9 @@ struct Game {
 struct Game* gameCreate(void);
 void gameDestroy(struct Game*);
 void gameExit(struct Game*); 
-void gameLinesClearedEvent(struct Game*, int lines_cleared);
 
+// Events
+void gameEventLinesCleared(struct Game*, int lines_cleared);
+void gameEventTetroFixedToBoard(struct Game*);
 
 #endif // MAIN_H

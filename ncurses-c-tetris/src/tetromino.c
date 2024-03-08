@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "include/tetromino.h"
 
@@ -61,6 +62,7 @@ struct Tetromino* tetroCreate() {
 	t->x = 0;
 	t->y = 0;
 	t->size = TETROMINO_SIZE;
+	srand(time(NULL)); // seed random generator
 	tetroRandomize(t);
 	return t;
 }

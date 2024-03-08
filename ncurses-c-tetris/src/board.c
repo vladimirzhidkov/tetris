@@ -62,5 +62,8 @@ void boardFixTetroToBoard(struct Board* b) {
 		}
 	}
 	int line_count = boardClearLines(b);
-	gameLinesClearedEvent(b->game, line_count);
+	if (line_count) {
+		gameEventLinesCleared(b->game, line_count);
+	}
+	gameEventTetroFixedToBoard(b->game);
 }
