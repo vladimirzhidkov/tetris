@@ -1,8 +1,8 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 #include "include/board.h"
-#include "stdio.h"
 
 struct Board* boardCreate(int height, int width, struct Game* g) {
 	struct Board* b = malloc(sizeof(struct Board));

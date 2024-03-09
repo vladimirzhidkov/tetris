@@ -1,30 +1,30 @@
-PROJECT = tetris.out
+PROJECT = a.out
 
 SRC_DIR = src
 BUILD_DIR = bin
 INCLUDE_DIR = $(SRC_DIR)/include
-CFILES = $(patsubst %,$(SRC_DIR)/%, main.c tetromino.c board.c view.c)
+CFILES = $(patsubst %,$(SRC_DIR)/%, main.c game.c tetromino.c board.c view.c)
 AFILES = $(patsubst %,$(SRC_DIR)/%,)
 LIBS = -lncurses
-
 
 VERBOSE = 0
 CC = gcc
 AS = $(CC) 
 LD = $(CC) 
 CPPFLAGS = -MD -I$(INCLUDE_DIR)
-CFLAGS = -g -O0 -c -std=c99 -Wall
+CFLAGS = -c -std=c99 -Wall
 ASFLAGS = -g -arch arm64
 LDFLAGS = $(LIBS)
 #LDFLAGS = -arch arm64 -e _start -lSystem -syslibroot `xcrun -sdk macosx --show-sdk-path` 
-
-OBJS = $(CFILES:%.c=$(BUILD_DIR)/%.o)
-OBJS += $(AFILES:%.s=$(BUILD_DIR)/%.o)
-
-
+ifeq ($(RELEASE), )
+	CFLAGS += -g -O0
+endif
 ifeq ($(VERBOSE), 0)
 	Q = @
 endif
+
+OBJS = $(CFILES:%.c=$(BUILD_DIR)/%.o)
+OBJS += $(AFILES:%.s=$(BUILD_DIR)/%.o)
 
 .PHONY: all clean
 

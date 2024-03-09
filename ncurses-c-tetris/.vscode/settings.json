@@ -8,4 +8,8 @@
 	"editor.tabSize": 6,
 	"workbench.colorTheme": "Visual Studio Dark",
 	"editor.fontFamily": "monospace",
+	"files.associations": {
+		"game.h": "c",
+		"board.h": "c"
+	},
 }

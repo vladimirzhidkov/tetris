@@ -2,7 +2,7 @@
 #define VIEW_H
 
 #include <ncurses.h>
-#include "main.h"
+#include "game.h"
 #include "settings.h"
 
 struct View {

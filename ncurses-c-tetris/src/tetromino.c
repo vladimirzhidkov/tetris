@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
 #include "include/tetromino.h"
 
 #define TETROPOOL_SIZE 7

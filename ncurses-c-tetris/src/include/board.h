@@ -1,8 +1,7 @@
 #ifndef BOARD_H 
 #define BOARD_H
-
+#include "game.h"
 #include "tetromino.h"
-#include "main.h"
 
 struct Board {
 	int* board;
