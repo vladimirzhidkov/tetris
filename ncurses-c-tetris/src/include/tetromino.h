@@ -1,28 +1,33 @@
-#ifndef TETROMINO_H 
-#define TETROMINO_H 
+#ifndef TETROMINO_H
+#define TETROMINO_H
 
-struct Tetromino {
+typedef struct {
 	int* current;
 	int* next;
 	int size;
 	int x;
 	int y;
-};
+} Tetromino;
 
 // create/destroy
-struct Tetromino* tetroCreate(void);
-void tetroDestroy(struct Tetromino*);
-void tetroRandomize(struct Tetromino*);
+Tetromino* Tetromino_Init(void);
+void Tetromino_Destroy(Tetromino *);
+void Tetromino_Randomize(Tetromino *);
+
 // access
-int tetroRead(struct Tetromino*, int x, int y);
-int tetroReadNext(struct Tetromino* t, int x, int y);
-void tetroWrite(struct Tetromino*, int x, int y, int value);
+int Tetromino_Read(Tetromino *, int x, int y);
+int Tetromino_ReadNext(Tetromino * t, int x, int y);
+void Tetromino_Write(Tetromino *, int x, int y, int value);
+
 // transform
-void tetroMoveRight(struct Tetromino*);
-void tetroMoveLeft(struct Tetromino*);
-void tetroMoveDown(struct Tetromino*);
-void tetroMoveUp(struct Tetromino*);
-void tetroRotateClockwise(struct Tetromino*);
-void tetroRotateCounterClockwise(struct Tetromino*);
+void Tetromino_MoveRight(Tetromino *);
+void Tetromino_MoveLeft(Tetromino *);
+void Tetromino_MoveDown(Tetromino *);
+void Tetromino_MoveUp(Tetromino *);
+void Tetromino_RotateClockwise(Tetromino *);
+void Tetromino_RotateCounterClockwise(Tetromino *);
+void transpose(Tetromino *);
+void reverseRows(Tetromino *);
+void reverseColumns(Tetromino *);
 
 #endif // TETROMINO_H

@@ -1,30 +1,29 @@
 #ifndef GAME_H
 #define GAME_H
 
+typedef struct Game Game;
+
 #include "board.h"
 #include "tetromino.h"
 #include "view.h"
 #include "settings.h"
 
 struct Game {
-	struct Board* board;
-	struct Tetromino* tetromino;
-	struct View* view;
+	Board *board;
+	Tetromino *tetromino;
+	View *view;
 	int score;
 	int level;
 	int lines_cleared;
 	int update_rate;
 };
 
-struct Game* gameCreate(void);
-void gameDestroy(struct Game*);
-void gameExit(struct Game*); 
-void gameSpawnTetro(struct Game*);
-void gameStartEventLoop(struct Game*);
-
-// Events
-void gameEventLinesCleared(struct Game*, int lines_cleared);
-void gameEventTetroFixedToBoard(struct Game*);
-void gameEventKeyPressed(struct Game*, int key);
+Game* Game_Init(void);
+void Game_Destroy(Game *);
+void Game_Exit(Game *); 
+void Game_SpawnTetro(Game *);
+void Game_StartEventLoop(Game *);
+int Game_CheckCollision(Game *);
+void Game_KeyPressed(Game *, int key);
 
 #endif // GAME_H

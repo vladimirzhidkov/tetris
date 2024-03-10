@@ -6,12 +6,7 @@
 #define TETROPOOL_SIZE 7
 #define TETROMINO_SIZE 4
 
-// private functions
-void transpose(struct Tetromino* t);
-void reverseRows(struct Tetromino* t);
-void reverseColumns(struct Tetromino* t);
-
-int tetroPool[TETROPOOL_SIZE][TETROMINO_SIZE * TETROMINO_SIZE] = {
+static int tetroPool[TETROPOOL_SIZE][TETROMINO_SIZE * TETROMINO_SIZE] = {
 	{ // line-shape
 		0, 0, 0, 0,
 		1, 1, 1, 1,
@@ -56,87 +51,87 @@ int tetroPool[TETROPOOL_SIZE][TETROMINO_SIZE * TETROMINO_SIZE] = {
 	}
 };
 
-struct Tetromino* tetroCreate() {
-	struct Tetromino* t = malloc(sizeof(struct Tetromino));
-	t->x = 0;
-	t->y = 0;
-	t->size = TETROMINO_SIZE;
+Tetromino* Tetromino_Init() {
+	Tetromino* me = malloc(sizeof(Tetromino));
+	me->x = 0;
+	me->y = 0;
+	me->size = TETROMINO_SIZE;
 	srand(time(NULL)); // seed random generator
-	tetroRandomize(t);
-	return t;
+	Tetromino_Randomize(me);
+	return me;
 }
 
-void tetroDestroy(struct Tetromino* t) {
-	free(t);
+void Tetromino_Destroy(Tetromino* me) {
+	free(me);
 }
 
-void tetroRandomize(struct Tetromino* t) {
+void Tetromino_Randomize(Tetromino* me) {
 	int i = rand() % TETROPOOL_SIZE;
-	t->current = t->next;
-	t->next = tetroPool[i];
+	me->current = me->next;
+	me->next = tetroPool[i];
 }
 
-int tetroRead(struct Tetromino* t, int x, int y) {
-	return *(t->current + y * t->size + x);
+int Tetromino_Read(Tetromino* me, int x, int y) {
+	return *(me->current + y * me->size + x);
 }
 
-int tetroReadNext(struct Tetromino* t, int x, int y) {
-	return *(t->next + y * t->size + x);
+int Tetromino_ReadNext(Tetromino* me, int x, int y) {
+	return *(me->next + y * me->size + x);
 }
 
-void tetroWrite(struct Tetromino* t, int x, int y, int value) {
-	*(t->current + y * t->size + x) = value;
+void Tetromino_Write(Tetromino* me, int x, int y, int value) {
+	*(me->current + y * me->size + x) = value;
 }
 
-void transpose(struct Tetromino* t) {
-	for (int i = 0; i < t->size; i++) {
-		for (int j = i + 1; j < t->size; j++) {
-			int temp = tetroRead(t, j, i);
-			tetroWrite(t, j, i, tetroRead(t, i, j));
-			tetroWrite(t, i, j, temp);
+void transpose(Tetromino* me) {
+	for (int i = 0; i < me->size; i++) {
+		for (int j = i + 1; j < me->size; j++) {
+			int temp = Tetromino_Read(me, j, i);
+			Tetromino_Write(me, j, i, Tetromino_Read(me, i, j));
+			Tetromino_Write(me, i, j, temp);
 		}
 	}
 }
 
-void reverseRows(struct Tetromino* t) {
-	for (int i = 0; i < t->size; i++) {
-		for (int j = 0, k = t->size - 1; j < k; j++, k--) {
-			int temp = tetroRead(t, j, i);
-			tetroWrite(t, j, i, tetroRead(t, k, i));
-			tetroWrite(t, k, i, temp);
+void reverseRows(Tetromino* me) {
+	for (int i = 0; i < me->size; i++) {
+		for (int j = 0, k = me->size - 1; j < k; j++, k--) {
+			int temp = Tetromino_Read(me, j, i);
+			Tetromino_Write(me, j, i, Tetromino_Read(me, k, i));
+			Tetromino_Write(me, k, i, temp);
 		}
 	}
 }
 
-void reverseColumns(struct Tetromino* t) {
-	for (int i = 0; i < t->size; i++) {
-		for (int j = 0, k = t->size - 1; j < k; j++, k--) {
-			int temp = tetroRead(t, i, j);
-			tetroWrite(t, i, j, tetroRead(t, i, k));
-			tetroWrite(t, i, k, temp);
+void reverseColumns(Tetromino* me) {
+	for (int i = 0; i < me->size; i++) {
+		for (int j = 0, k = me->size - 1; j < k; j++, k--) {
+			int temp = Tetromino_Read(me, i, j);
+			Tetromino_Write(me, i, j, Tetromino_Read(me, i, k));
+			Tetromino_Write(me, i, k, temp);
 		}
 	}
 }
 
-void tetroRotateClockwise(struct Tetromino* t) {
-	transpose(t);
-	reverseRows(t);
+void Tetromino_RotateClockwise(Tetromino* me) {
+	transpose(me);
+	reverseRows(me);
 }
 
-void tetroRotateCounterClockwise(struct Tetromino* t) {
-	transpose(t);
-	reverseColumns(t);
+void Tetromino_RotateCounterClockwise(Tetromino* me) {
+	transpose(me);
+	reverseColumns(me);
 }
 
-void tetroMoveRight(struct Tetromino* t) {
-	t->x++;
+void Tetromino_MoveRight(Tetromino* me) {
+	me->x++;
 }
-void tetroMoveLeft(struct Tetromino* t) {
-	t->x--;
+void Tetromino_MoveLeft(Tetromino* me) {
+	me->x--;
 }
-void tetroMoveDown(struct Tetromino* t) {
-	t->y++;
+void Tetromino_MoveDown(Tetromino* me) {
+	me->y++;
 }
-void tetroMoveUp(struct Tetromino* t) {
-	t->y--;
+void Tetromino_MoveUp(Tetromino* me) {
+	me->y--;
 }

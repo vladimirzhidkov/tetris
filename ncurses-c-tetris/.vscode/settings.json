@@ -10,6 +10,8 @@
 	"editor.fontFamily": "monospace",
 	"files.associations": {
 		"game.h": "c",
-		"board.h": "c"
+		"board.h": "c",
+		"view.h": "c",
+		"tetromino.h": "c"
 	},
 }

@@ -4,37 +4,35 @@
 #include <ncurses.h>
 #include "include/game.h"
 
-// private functions
-int checkCollision(struct Game* g);
+// private helper functions
 long long current_time_ms();
-int calcScore(int lines_cleared, int level);
+int calc_score(int lines_cleared, int level);
 
 
 // public functions
-struct Game* gameCreate(void) {
-
-	struct Game* g = malloc(sizeof(struct Game));
-	g->board = boardCreate(BOARD_HEIGHT, BOARD_WIDTH, g);
-	g->tetromino = tetroCreate();
-	g->view = viewCreate(g);
-	g->score = 0;
-	g->level = 0;
-	g->update_rate = GAME_UPDATE_RATE_BASE_MS - GAME_UPDATE_RATE_REDUCTION_MS * g->level;
-	return g;
+Game* Game_Init(void) {
+	Game* me = malloc(sizeof(Game));
+	me->board = Board_Init(BOARD_HEIGHT, BOARD_WIDTH);
+	me->tetromino = Tetromino_Init();
+	me->view = View_Init(me->board, me->tetromino);
+	me->score = 0;
+	me->level = 0;
+	me->update_rate = GAME_UPDATE_RATE_BASE_MS - GAME_UPDATE_RATE_REDUCTION_MS * me->level;
+	return me;
 }
 
-void gameDestroy(struct Game* g) {
-	boardDestroy(g->board);
-	tetroDestroy(g->tetromino);
-	viewDestroy(g->view);
-	free(g);
+void Game_Destroy(Game* me) {
+	Board_Destroy(me->board);
+	Tetromino_Destroy(me->tetromino);
+	View_Destroy(me->view);
+	free(me);
 }
 
-void gameExit(struct Game* g) {
-	int level = g->level;
-	int lines = g->lines_cleared;
-	int score = g->score;
-	gameDestroy(g);
+void Game_Exit(Game* me) {
+	int level = me->level;
+	int lines = me->lines_cleared;
+	int score = me->score;
+	Game_Destroy(me);
 	printf("Game Over\n");
 	printf("Level:%d\n", level);
 	printf("Lines:%d\n", lines);
@@ -42,14 +40,14 @@ void gameExit(struct Game* g) {
 	exit(0);
 }
 
-int checkCollision(struct Game* g) {
-	for (int cellY = 0; cellY < g->tetromino->size; cellY++) {
-		for (int cellX = 0; cellX < g->tetromino->size; cellX++) {
-			if (tetroRead(g->tetromino, cellX, cellY)) {
-				int x = g->tetromino->x + cellX;
-				int y = g->tetromino->y + cellY;
-				if (x < 0 || x >= g->board->width ||
-					y >= g->board->height || boardRead(g->board, x, y))
+int Game_CheckCollision(Game* me) {
+	for (int cellY = 0; cellY < me->tetromino->size; cellY++) {
+		for (int cellX = 0; cellX < me->tetromino->size; cellX++) {
+			if (Tetromino_Read(me->tetromino, cellX, cellY)) {
+				int x = me->tetromino->x + cellX;
+				int y = me->tetromino->y + cellY;
+				if (x < 0 || x >= me->board->width ||
+					y >= me->board->height || Board_Read(me->board, x, y))
 				{
 					return 1;
 				}
@@ -59,17 +57,17 @@ int checkCollision(struct Game* g) {
 	return 0;
 }
 
-void gameSpawnTetro(struct Game* g) {
-	tetroRandomize(g->tetromino);
-	g->tetromino->x = (g->board->width - g->tetromino->size) / 2;
-	g->tetromino->y = 0;
-	if (checkCollision(g)) {
-		gameExit(g);
+void Game_SpawnTetro(Game* me) {
+	Tetromino_Randomize(me->tetromino);
+	me->tetromino->x = (me->board->width - me->tetromino->size) / 2;
+	me->tetromino->y = 0;
+	if (Game_CheckCollision(me)) {
+		Game_Exit(me);
 	}
-	viewRenderNextShape(g->view);
+	View_RenderNextShape(me->view, me->tetromino);
 }
 
-int calcScore(int lines_cleared, int level) {
+int calc_score(int lines_cleared, int level) {
 	int base_value;
 	switch (lines_cleared) {
 		case 1: base_value = GAME_RULES_BASEVALUE_LEVEL1; break;
@@ -81,51 +79,55 @@ int calcScore(int lines_cleared, int level) {
 	return base_value * (level + 1);
 }
 
-// gets called if lines_cleard > 0
-void gameEventLinesCleared(struct Game* g, int lines_cleared) {
-	g->lines_cleared += lines_cleared;
-	g->level = g->lines_cleared / GAME_RULES_LINES_PER_LEVEL;
-	g->update_rate = GAME_UPDATE_RATE_BASE_MS - GAME_UPDATE_RATE_REDUCTION_MS * g->level;
-	g->score += calcScore(lines_cleared, g->level);
+void Game_UpdateState(Game* me, int lines_cleared) {
+	if (lines_cleared) {
+		me->lines_cleared += lines_cleared;
+		me->level = me->lines_cleared / GAME_RULES_LINES_PER_LEVEL;
+		me->update_rate = GAME_UPDATE_RATE_BASE_MS - GAME_UPDATE_RATE_REDUCTION_MS * me->level;
+		me->score += calc_score(lines_cleared, me->level);
+	}
 }
 
-void gameEventTetroFixedToBoard(struct Game* g) {
-	viewRenderScoreBoard(g->view);
-	gameSpawnTetro(g);
+void Game_FixTetroToBoard(Game *me) {
+	Board_FixTetroToBoard(me->board, me->tetromino);
+	int lines_cleared= Board_ClearLines(me->board);
+	Game_UpdateState(me, lines_cleared);
+	View_RenderScoreBoard(me->view, me->level, me->lines_cleared, me->score);
+	Game_SpawnTetro(me);
 }
 
-void gameEventKeyPressed(struct Game* g, int key) {
+void Game_KeyPressed(Game* me, int key) {
 	switch (key) {
 		case KEY_LEFT:
-			tetroMoveLeft(g->tetromino);
-			if (checkCollision(g)) {
-				tetroMoveRight(g->tetromino);
+			Tetromino_MoveLeft(me->tetromino);
+			if (Game_CheckCollision(me)) {
+				Tetromino_MoveRight(me->tetromino);
 			}
 			break;
 		case KEY_RIGHT:
-			tetroMoveRight(g->tetromino);
-			if (checkCollision(g)) {
-				tetroMoveLeft(g->tetromino);
+			Tetromino_MoveRight(me->tetromino);
+			if (Game_CheckCollision(me)) {
+				Tetromino_MoveLeft(me->tetromino);
 			}
 			break;
 		case KEY_DOWN:
 		case ' ':
-			tetroMoveDown(g->tetromino);
-			if (checkCollision(g)) {
-				tetroMoveUp(g->tetromino);
-				boardFixTetroToBoard(g->board);
+			Tetromino_MoveDown(me->tetromino);
+			if (Game_CheckCollision(me)) {
+				Tetromino_MoveUp(me->tetromino);
+				Game_FixTetroToBoard(me);
 			}
 			break;
 		case KEY_UP:
-			tetroRotateClockwise(g->tetromino);
-			if (checkCollision(g)) {
-				tetroRotateCounterClockwise(g->tetromino);
+			Tetromino_RotateClockwise(me->tetromino);
+			if (Game_CheckCollision(me)) {
+				Tetromino_RotateCounterClockwise(me->tetromino);
 			}
 			break;
 		case CTRL_QUIT:
-			gameExit(g);
+			Game_Exit(me);
 	}
-	viewRenderGameBoard(g->view);
+	View_RenderGameBoard(me->view, me->board, me->tetromino);
 }
 
 long long current_time_ms() {
@@ -134,21 +136,21 @@ long long current_time_ms() {
 	return (long long)time.tv_sec * 1000 + time.tv_usec / 1000;
 }
 
-void gameStartEventLoop(struct Game* g) {
+void Game_StartEventLoop(Game* me) {
 	long long last_updated_time_ms = current_time_ms();
 	int key;
 	while (1) {
-		if (current_time_ms() - last_updated_time_ms > g->update_rate) {
-			tetroMoveDown(g->tetromino);
-			if (checkCollision(g)) {
-				tetroMoveUp(g->tetromino);
-				boardFixTetroToBoard(g->board);
+		if (current_time_ms() - last_updated_time_ms > me->update_rate) {
+			Tetromino_MoveDown(me->tetromino);
+			if (Game_CheckCollision(me)) {
+				Tetromino_MoveUp(me->tetromino);
+				Game_FixTetroToBoard(me);
 			}
-			viewRenderGameBoard(g->view);
+			View_RenderGameBoard(me->view, me->board, me->tetromino);
 			last_updated_time_ms = current_time_ms();
 		}
 		if ((key = getch()) != ERR) {
-			gameEventKeyPressed(g, key);
+			Game_KeyPressed(me, key);
 		}
 	}
 }

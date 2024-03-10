@@ -2,23 +2,23 @@
 #define VIEW_H
 
 #include <ncurses.h>
-#include "game.h"
+#include "board.h"
+#include "tetromino.h"
 #include "settings.h"
 
-struct View {
-	struct Game* game;
+typedef struct {
 	WINDOW * wscore;
 	WINDOW * wnext;
 	WINDOW * wboard;
 	WINDOW * winstructions;
 	int board_pixel_width;
 	int board_pixel_height;
-};
+} View;
 
-struct View* viewCreate(struct Game*);
-void viewDestroy(struct View*);
-void viewRenderGameBoard(struct View*); 
-void viewRenderScoreBoard(struct View*);
-void viewRenderNextShape(struct View*);
+View* View_Init(Board *, Tetromino *);
+void View_Destroy(View *);
+void View_RenderGameBoard(View *, Board *, Tetromino *); 
+void View_RenderScoreBoard(View *, int level, int lines, int score);
+void View_RenderNextShape(View *, Tetromino *);
 
 #endif // VIEW_H

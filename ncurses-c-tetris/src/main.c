@@ -13,14 +13,14 @@ int main() {
 	timeout(0);
 
 	// init game	
-	struct Game* g = gameCreate();
-	gameSpawnTetro(g);
+	Game* g = Game_Init();
+	Game_SpawnTetro(g);
 	
 	// render views
-	viewRenderGameBoard(g->view);
-	viewRenderScoreBoard(g->view);
+	View_RenderGameBoard(g->view, g->board, g->tetromino);
+	View_RenderScoreBoard(g->view, g->level, g->lines_cleared, g->score);
 
 	// game loop
-	gameStartEventLoop(g);
+	Game_StartEventLoop(g);
 	return 0;
 }

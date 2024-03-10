@@ -4,37 +4,36 @@
 #include <stdbool.h>
 #include "include/board.h"
 
-struct Board* boardCreate(int height, int width, struct Game* g) {
-	struct Board* b = malloc(sizeof(struct Board));
-	b->game = g;
-	b->height = height; 
-	b->width = width;
+Board* Board_Init(int height, int width) {
+	Board* me = malloc(sizeof(Board));
+	me->height = height; 
+	me->width = width;
 	int matrix_size = sizeof(int) * height * width;
-	b->board = malloc(matrix_size);
-	memset(b->board, 0, matrix_size);
-	return b;
+	me->board = malloc(matrix_size);
+	memset(me->board, 0, matrix_size);
+	return me;
 }
 
-void boardDestroy(struct Board* b) {
-	free(b->board);
-	free(b);
+void Board_Destroy(Board* me) {
+	free(me->board);
+	free(me);
 }
 
-void boardWrite(struct Board* b, int x, int y, int value) {
-	*(b->board + y * b->width + x) = value; 
+void Board_Write(Board* me, int x, int y, int value) {
+	*(me->board + y * me->width + x) = value; 
 }
 
-int boardRead(struct Board* b, int x, int y) {
-	return *(b->board + y * b->width + x);
+int Board_Read(Board* me, int x, int y) {
+	return *(me->board + y * me->width + x);
 }
 
-int boardClearLines(struct Board* b) {
+int Board_ClearLines(Board* me) {
 	int count = 0;
-	for (int y = 0; y < b->height; y++) {
+	for (int y = 0; y < me->height; y++) {
 		int isFullLine= 1;
 		// iterate over row looking for a full line
-		for (int x = 0; x < b->width; x++) {
-			if (boardRead(b, x, y) == 0) {
+		for (int x = 0; x < me->width; x++) {
+			if (Board_Read(me, x, y) == 0) {
 				isFullLine = 0;
 				break;
 			}
@@ -42,28 +41,22 @@ int boardClearLines(struct Board* b) {
 		if (isFullLine) {
 			count++;
 			// Shift rows up starting from current row 
-			for (int i = y * b->width - 1; i >= 0; i--) {
-				b->board[i + b->width] = b->board[i];
+			for (int i = y * me->width - 1; i >= 0; i--) {
+				me->board[i + me->width] = me->board[i];
 			}
 			// add zero line at the top
-			memset(b->board, 0, sizeof(int) * b->width);
+			memset(me->board, 0, sizeof(int) * me->width);
 		}
 	}
 	return count;
 }
 
-void boardFixTetroToBoard(struct Board* b) {
-	struct Tetromino* t = b->game->tetromino;
+void Board_FixTetroToBoard(Board* me, Tetromino *t) {
 	for (int y = 0; y < t->size; y++) {
 		for (int x = 0; x < t->size; x++) {
-			if (tetroRead(t, x, y)) {
-				boardWrite(b, t->x + x, t->y + y, 1);
+			if (Tetromino_Read(t, x, y)) {
+				Board_Write(me, t->x + x, t->y + y, 1);
 			}
 		}
 	}
-	int line_count = boardClearLines(b);
-	if (line_count) {
-		gameEventLinesCleared(b->game, line_count);
-	}
-	gameEventTetroFixedToBoard(b->game);
 }
