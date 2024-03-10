@@ -49,7 +49,7 @@ char * str_repeat_char(char c, int n) {
 	return str;
 }
 
-int isTetroPart(int board_x, int board_y, Tetromino* t) {
+int is_tetro_part(int board_x, int board_y, Tetromino* t) {
 	int tetro_x = board_x - t->x;
 	int tetro_y = board_y - t->y;
 	if (tetro_x >= 0 && tetro_x < t->size && tetro_y >=0 && tetro_y < t->size) {
@@ -66,7 +66,7 @@ void View_RenderGameBoard(View* me, Board *b, Tetromino *t) {
 		for (int i = 0; i < me->board_pixel_height; ++i) {
 			wmove(me->wboard, row + i, 1);
 			for (int x = 0; x < b->width; x++) {
-				int value = Board_Read(b, x, y) || isTetroPart(x, y, t);
+				int value = Board_Read(b, x, y) || is_tetro_part(x, y, t);
 				wattron(me->wboard, COLOR_PAIR(value));
 				wprintw(me->wboard, cell);
 				wattroff(me->wboard, COLOR_PAIR(value));
