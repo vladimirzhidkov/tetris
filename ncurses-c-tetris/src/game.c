@@ -96,6 +96,14 @@ void Game_FixTetroToBoard(Game *me) {
 	Game_SpawnTetro(me);
 }
 
+void Game_NextTick(Game * me) {
+	Tetromino_MoveDown(me->tetromino);
+	if (Game_CheckCollision(me)) {
+		Tetromino_MoveUp(me->tetromino);
+		Game_FixTetroToBoard(me);
+	}
+}
+
 void Game_KeyPressed(Game* me, int key) {
 	switch (key) {
 		case KEY_LEFT:
@@ -112,11 +120,7 @@ void Game_KeyPressed(Game* me, int key) {
 			break;
 		case KEY_DOWN:
 		case ' ':
-			Tetromino_MoveDown(me->tetromino);
-			if (Game_CheckCollision(me)) {
-				Tetromino_MoveUp(me->tetromino);
-				Game_FixTetroToBoard(me);
-			}
+			Game_NextTick(me);
 			break;
 		case KEY_UP:
 			Tetromino_RotateClockwise(me->tetromino);
@@ -140,12 +144,8 @@ void Game_StartEventLoop(Game* me) {
 	long long last_updated_time_ms = current_time_ms();
 	int key;
 	while (1) {
-		if (current_time_ms() - last_updated_time_ms > me->update_rate) {
-			Tetromino_MoveDown(me->tetromino);
-			if (Game_CheckCollision(me)) {
-				Tetromino_MoveUp(me->tetromino);
-				Game_FixTetroToBoard(me);
-			}
+		if (current_time_ms() > last_updated_time_ms + me->update_rate) {
+			Game_NextTick(me);
 			View_RenderGameBoard(me->view, me->board, me->tetromino);
 			last_updated_time_ms = current_time_ms();
 		}

@@ -22,6 +22,7 @@ void Game_Exit(Game *);
 void Game_SpawnTetro(Game *);
 void Game_StartEventLoop(Game *);
 int Game_CheckCollision(Game *);
+void Game_NextTick(Game *);
 void Game_KeyPressed(Game *, int key);
 void Game_FixTetroToBoard(Game *);
 
