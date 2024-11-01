@@ -12,7 +12,7 @@ int main() {
 	curs_set(0);
 	timeout(0);
 
-	// init game	
+	// init game
 	Game* g = Game_Init();
 	Game_SpawnTetro(g);
 	

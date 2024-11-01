@@ -47,7 +47,7 @@ void initTerminal(void) {
 }
 // TODO: writeToTerminal
 void sendToTerminal(char* frame, int size) {
-	ssize_t n = write(STDOUT_FILENO, frame, size);
+	write(STDOUT_FILENO, frame, size);
 }
 
 char getChar() {
